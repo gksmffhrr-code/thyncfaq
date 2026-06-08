@@ -504,7 +504,7 @@ window.addEventListener('error', function(ev){
 
 var faqs = [], index = null, isAdmin = false, me = null;
 var queueCache = [], logsCache = [], pmAddedCache = [];
-var history = [];          // 대화 맥락 {role:'user'|'assistant', content}
+var chatLog = [];          // 대화 맥락 {role:'user'|'assistant', content}
 var lastCands = [];        // 직전 턴 후보 (후속 질문 대응)
 var aiOffNotified = false;
 
@@ -572,7 +572,7 @@ function chatEl(){ return document.getElementById('chat'); }
 function scrollChat(){ var c=chatEl(); if(c) c.scrollTop = c.scrollHeight; }
 
 function emptyState(){
-  if(history.length) return;
+  if(chatLog.length) return;
   var chips = EXAMPLES.map(function(e){
     return '<span class="chip" onclick="useExample(this)">'+esc(e)+'</span>';
   }).join('');
@@ -588,7 +588,7 @@ function addBubble(role, html, cls){
   var div = document.createElement('div');
   div.className = 'msg ' + role + (cls?(' '+cls):'');
   div.innerHTML = html;
-  if(history.length<=1 && chatEl().querySelector('.empty-chat')) chatEl().innerHTML='';
+  if(chatLog.length<=1 && chatEl().querySelector('.empty-chat')) chatEl().innerHTML='';
   chatEl().appendChild(div);
   scrollChat();
   return div;
@@ -605,7 +605,7 @@ async function ask(){
   if(!q) return;
   input.value=''; input.focus();
 
-  history.push({role:'user', content:q});
+  chatLog.push({role:'user', content:q});
   addBubble('user','<div class="bub">'+esc(q)+'</div>');
 
   var r, merged = [];
@@ -627,7 +627,7 @@ async function ask(){
   try{
     var payload = {
       question: q,
-      history: history.slice(-7, -1),   // 직전 최대 6턴 (이번 질문 제외)
+      history: chatLog.slice(-7, -1),   // 직전 최대 6턴 (이번 질문 제외)
       candidates: merged.map(function(f){ return { id:f.id, cat:f.cat, q:f.q, a:f.a }; })
     };
     var resp = await sb.functions.invoke('ask', { body: payload });
@@ -637,7 +637,7 @@ async function ask(){
     if(d.fallback){ aiOffNotice(); localBubble(q, r); return; }
     if(d.found){
       lastCands = merged;
-      history.push({role:'assistant', content:d.answer});
+      chatLog.push({role:'assistant', content:d.answer});
       aiBubble(d.answer, d.sources||[], q);
     } else {
       noAnswerBubble(q);
@@ -661,7 +661,7 @@ function aiBubble(answer, sources, q){
 }
 
 function noAnswerBubble(q){
-  history.push({role:'assistant', content:'(답변 없음 — PM 문의 안내)'});
+  chatLog.push({role:'assistant', content:'(답변 없음 — PM 문의 안내)'});
   addBubble('ai',
     '<div class="bub">이 질문은 아직 학습된 FAQ에 답이 없어요. PM에게 전달해두면, 답변이 등록되는 대로 다음부터 바로 답해드릴 수 있습니다.'+
     '<div class="actrow"><a class="strong" onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">📨 PM에게 질문 전달</a></div></div>');
@@ -672,7 +672,7 @@ function localBubble(q, r){
   // AI 미연결/오류 시: 로컬 검색 결과로 응답 (서비스 지속)
   if(r.band==='high' && r.top && r.top.f){
     var f = r.top.f;
-    history.push({role:'assistant', content:f.a});
+    chatLog.push({role:'assistant', content:f.a});
     addBubble('ai','<div class="bub"><div class="miniq">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+
       '<div class="srcrow"><a class="srcchip" onclick="showOrig('+f.id+')">'+esc(f.cat)+' · FAQ '+f.id+'</a></div>'+
       '<div class="actrow"><a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">PM 문의</a></div></div>');
@@ -680,7 +680,7 @@ function localBubble(q, r){
     var list = r.candidates.slice(0,3).map(function(c){
       return '<a class="srcchip" onclick="showOrig('+c.f.id+')">'+esc(c.f.q.slice(0,40))+'…</a>';
     }).join('');
-    history.push({role:'assistant', content:'(후보 제시)'});
+    chatLog.push({role:'assistant', content:'(후보 제시)'});
     addBubble('ai','<div class="bub">찾으시는 게 이 중에 있을까요?<div class="srcrow">'+list+'</div>'+
       '<div class="actrow"><a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">원하는 답 없음 — PM 문의</a></div></div>');
   } else { noAnswerBubble(q); }
@@ -693,7 +693,7 @@ function aiOffNotice(){
 
 function showOrig(id){
   var f = faqs.filter(function(x){return x.id===id;})[0]; if(!f) return;
-  history.push({role:'assistant', content:'(원문 표시: FAQ '+id+')'});
+  chatLog.push({role:'assistant', content:'(원문 표시: FAQ '+id+')'});
   addBubble('ai','<div class="bub"><div class="miniq">📄 원문 FAQ '+f.id+' · '+esc(f.cat)+'</div>'+
     '<div class="miniq2">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+'</div>');
 }
