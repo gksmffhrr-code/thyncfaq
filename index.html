@@ -188,8 +188,8 @@
 <div id="login-overlay" style="display:none">
   <div class="loginbox">
     <h2>thynC 학습형 FAQ</h2>
-    <p>사내 전용 — 발급받은 계정으로 로그인하세요</p>
-    <input id="lg-email" type="email" placeholder="이메일" autocomplete="username">
+    <p>사내 전용 — 발급받은 아이디로 로그인하세요</p>
+    <input id="lg-email" type="text" placeholder="아이디" autocomplete="username">
     <input id="lg-pw" type="password" placeholder="비밀번호" autocomplete="current-password"
            onkeydown="if(event.key==='Enter')doLogin()">
     <button onclick="doLogin()">로그인</button>
@@ -537,6 +537,7 @@ function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; 
 function showLogin(on){ document.getElementById('login-overlay').style.display = on ? 'flex' : 'none'; }
 async function doLogin(){
   var email = document.getElementById('lg-email').value.trim();
+  if(email && email.indexOf('@')===-1){ email = email + '@thync.local'; }
   var pw = document.getElementById('lg-pw').value;
   var msg = document.getElementById('lg-msg');
   if(!email || !pw){ msg.textContent = '이메일과 비밀번호를 입력하세요.'; return; }
@@ -555,7 +556,7 @@ async function boot(){
 async function enter(session){
   me = session.user.email;
   showLogin(false);
-  document.getElementById('who').textContent = me;
+  document.getElementById('who').textContent = me.replace('@thync.local','');
   document.getElementById('whobar').style.display = '';
   await loadData();
   emptyState();
