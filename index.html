@@ -175,6 +175,12 @@
   .ec-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
   .ec-sub{font-size:13.5px;color:var(--sub);line-height:1.7;margin-bottom:16px;}
   .empty-chat .chips{justify-content:center;}
+
+  .tg{border:0;background:var(--green-l);color:var(--green);font-weight:700;font-size:13px;padding:10px 14px;border-radius:9px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .tg.on{background:var(--green);color:#fff;}
+  .bub.teach{background:#F0F7F0;border:1px solid #cde3cd;}
+  .draftbox{background:var(--bg);border:1px dashed var(--line);border-radius:9px;padding:10px 12px;margin-top:8px;font-size:13px;line-height:1.7;}
+  .draftbox b{color:var(--navy);}
 </style>
 </head>
 <body>
@@ -212,8 +218,9 @@
     <div id="chat" class="chatwrap"></div>
     <div class="askbar">
       <input id="q" type="text" placeholder="질문을 입력하세요 — 후속 질문도 이어서 할 수 있어요" autocomplete="off"
-             onkeydown="if(event.key==='Enter')ask()">
-      <button onclick="ask()">전송</button>
+             onkeydown="if(event.key==='Enter')submitInput()">
+      <button onclick="submitInput()">전송</button>
+      <button id="teach-btn" class="tg" style="display:none" onclick="toggleTeach()" title="PM 학습 모드">🎓 학습</button>
     </div>
   </section>
 
@@ -563,6 +570,7 @@ async function loadData(){
   var ad = await sb.from('admins').select('email');
   isAdmin = !ad.error && (ad.data||[]).some(function(x){ return x.email === me; });
   document.getElementById('m-pm').style.display = isAdmin ? '' : 'none';
+  var tb=document.getElementById('teach-btn'); if(tb) tb.style.display = isAdmin ? '' : 'none';
   if(faqs.length === 0 && isAdmin){ toast('FAQ가 비어 있습니다. 시드 도구로 초기 데이터를 업로드하세요.'); }
   if(isAdmin) refreshPM();
 }
@@ -808,6 +816,79 @@ async function removeCustom(id){
   await loadData(); refreshPM();
 }
 function resetDemo(){ toast('운영 모드에서는 데이터 초기화가 비활성화되어 있습니다.'); }
+
+
+/* ---------- PM 대화형 학습 모드 ---------- */
+var teachMode=false, teachStep=null, teachQ=null, teachItem=null, teachDraft=null, teachQueue=[];
+function teachBubble(html){ return addBubble('ai','<div class="bub teach">'+html+'</div>'); }
+function teachActions(){ return '<div class="actrow"><a onclick="skipTeach()">건너뛰기</a><a onclick="endTeach()">학습 종료</a></div>'; }
+function toggleTeach(){
+  if(!isAdmin){ toast('PM 전용 기능입니다.'); return; }
+  if(teachMode){ endTeach(); return; }
+  teachMode=true; teachStep=null;
+  var tb=document.getElementById('teach-btn'); if(tb) tb.classList.add('on');
+  startTeach();
+}
+async function startTeach(){
+  teachBubble('🎓 <b>학습 모드</b>를 시작합니다. 답변을 채팅으로 입력하면 제가 FAQ 형식으로 다듬고 변형 질문까지 만들어 등록해 드려요.');
+  var qr = await sb.from('unanswered_queue').select('*').eq('status','pending').order('created_at');
+  teachQueue = (qr && qr.data) || [];
+  nextTeach();
+}
+function nextTeach(){
+  if(!teachMode) return;
+  teachDraft=null;
+  if(teachQueue.length){
+    teachItem=teachQueue.shift(); teachQ=teachItem.q; teachStep='answer';
+    teachBubble('📨 미답변 질문 (남은 '+(teachQueue.length+1)+'건)'+
+      '<div class="draftbox"><b>Q.</b> '+esc(teachQ)+(teachItem.asked_by?('<br><span style="color:var(--sub);font-size:12px">질문자: '+esc(teachItem.asked_by)+'</span>'):'')+'</div>'+
+      '이 질문에 대한 <b>답변을 채팅으로 입력</b>해주세요.'+teachActions());
+  } else {
+    teachItem=null; teachQ=null; teachStep='question';
+    teachBubble('대기 중인 미답변 질문이 없어요. 새로 가르칠 <b>질문</b>을 입력해주세요.<div class="actrow"><a onclick="endTeach()">학습 종료</a></div>');
+  }
+}
+function skipTeach(){ if(!teachMode) return; teachBubble('이 질문은 건너뛸게요.'); nextTeach(); }
+function endTeach(){
+  if(!teachMode && teachStep===null) return;
+  teachMode=false; teachStep=null; teachItem=null; teachDraft=null;
+  var tb=document.getElementById('teach-btn'); if(tb) tb.classList.remove('on');
+  teachBubble('학습 모드를 종료했어요. 일반 질문 모드로 돌아갑니다.');
+}
+function retryTeach(){ teachStep='answer'; teachBubble('새 답변을 입력해주세요. (질문: "'+esc(teachQ||'')+'")'+teachActions()); }
+async function handleTeachInput(){
+  var input=document.getElementById('q'); var val=input.value.trim(); if(!val) return;
+  input.value=''; input.focus();
+  addBubble('user','<div class="bub">'+esc(val)+'</div>');
+  if(teachStep==='question'){
+    teachQ=val; teachStep='answer';
+    teachBubble('좋아요. <b>"'+esc(teachQ)+'"</b> 에 대한 답변을 입력해주세요.'+teachActions());
+    return;
+  }
+  var t=typing();
+  try{
+    var resp = await sb.functions.invoke('ask', { body:{ mode:'teach', question:teachQ, answer:val } });
+    t.remove();
+    var d=(resp&&resp.data)||{};
+    if(d.ok){ teachDraft={ q:d.q||teachQ, a:d.a||val, cat:(CATS.indexOf(d.cat)>=0?d.cat:CATS[0]), variants:(d.variants||[]).slice(0,4) }; }
+    else { teachDraft={ q:teachQ, a:val, cat:CATS[0], variants:[] }; }
+  }catch(e){ t.remove(); teachDraft={ q:teachQ, a:val, cat:CATS[0], variants:[] }; }
+  teachStep='preview';
+  var vlist = teachDraft.variants.length? ('<br><b>변형 질문:</b> '+teachDraft.variants.map(esc).join(' · ')) : '';
+  teachBubble('이렇게 등록할게요:'+
+    '<div class="draftbox"><b>Q.</b> '+esc(teachDraft.q)+'<br><b>A.</b> '+esc(teachDraft.a)+'<br><b>카테고리:</b> '+esc(teachDraft.cat)+vlist+'</div>'+
+    '<div class="actrow"><a class="strong" onclick="registerTeach()">✅ 이대로 등록</a><a onclick="retryTeach()">✏️ 답변 다시 입력</a><a onclick="skipTeach()">건너뛰기</a><a onclick="endTeach()">종료</a></div>');
+}
+async function registerTeach(){
+  if(!teachDraft){ return; }
+  var ins = await sb.from('faqs').insert({ cat:teachDraft.cat, q:teachDraft.q, a:teachDraft.a, is_new:true, origin:'pm', variants:teachDraft.variants });
+  if(ins.error){ teachBubble('⚠ 등록 실패: '+esc(ins.error.message)); return; }
+  if(teachItem){ await sb.from('unanswered_queue').update({status:'answered'}).eq('id', teachItem.id); }
+  await loadData();
+  teachBubble('✅ <b>등록 완료!</b> 지금부터 모든 영업사원의 검색과 AI 답변에 바로 반영됩니다.');
+  nextTeach();
+}
+function submitInput(){ if(teachMode && isAdmin){ handleTeachInput(); } else { ask(); } }
 
 boot();
 
