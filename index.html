@@ -664,7 +664,7 @@ function aiBubble(answer, sources, q){
   addBubble('ai',
     '<div class="bub">'+ansHTML(answer)+ warn +
     (srcHTML?('<div class="srcrow">'+srcHTML+'</div>'):'')+
-    '<div class="actrow"><a onclick="toast(\'피드백 감사합니다 👍\')">👍 도움돼요</a>'+
+    '<div class="actrow"><a onclick="toast(\'피드백 감사합니다 👍\')">👍 도움돼요</a>'+((isAdmin&&sources&&sources.length)?('<a onclick="startRevise('+sources[0].id+')">✏️ 답변 수정</a>'):'')+
     '<a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">PM 문의</a></div></div>');
 }
 
@@ -703,7 +703,7 @@ function showOrig(id){
   var f = faqs.filter(function(x){return x.id===id;})[0]; if(!f) return;
   chatLog.push({role:'assistant', content:'(원문 표시: FAQ '+id+')'});
   addBubble('ai','<div class="bub"><div class="miniq">📄 원문 FAQ '+f.id+' · '+esc(f.cat)+'</div>'+
-    '<div class="miniq2">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+'</div>');
+    '<div class="miniq2">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+(isAdmin?('<div class="actrow"><a onclick="startRevise('+f.id+')">✏️ 이 FAQ 수정</a></div>'):'')+'</div>');
 }
 
 /* ---------- PM 문의 모달 ---------- */
@@ -888,7 +888,56 @@ async function registerTeach(){
   teachBubble('✅ <b>등록 완료!</b> 지금부터 모든 영업사원의 검색과 AI 답변에 바로 반영됩니다.');
   nextTeach();
 }
-function submitInput(){ if(teachMode && isAdmin){ handleTeachInput(); } else { ask(); } }
+
+/* ---------- PM 답변 교정 모드 ---------- */
+var reviseMode=false, reviseStep=null, reviseTarget=null, reviseDraft=null;
+function startRevise(fid){
+  if(!isAdmin){ toast('PM 전용 기능입니다.'); return; }
+  if(teachMode){ endTeach(); }
+  var f = faqs.filter(function(x){return x.id===fid;})[0];
+  if(!f){ toast('FAQ를 찾을 수 없습니다.'); return; }
+  reviseMode=true; reviseStep='instruct'; reviseTarget=f; reviseDraft=null;
+  teachBubble('✏️ <b>FAQ '+f.id+' 수정 모드</b>'+
+    '<div class="draftbox"><b>Q.</b> '+esc(f.q)+'<br><b>현재 답변:</b> '+esc(f.a)+'</div>'+
+    '무엇을 어떻게 바꿀지 채팅으로 알려주세요. (예: "워런티는 기본 3년으로 바꿔", "마지막 문장은 삭제")'+
+    '<div class="actrow"><a onclick="cancelRevise()">취소</a></div>');
+}
+function cancelRevise(){
+  if(!reviseMode) return;
+  reviseMode=false; reviseStep=null; reviseTarget=null; reviseDraft=null;
+  teachBubble('수정 모드를 취소했어요. 일반 질문 모드로 돌아갑니다.');
+}
+async function handleReviseInput(){
+  var input=document.getElementById('q'); var val=input.value.trim(); if(!val) return;
+  input.value=''; input.focus();
+  addBubble('user','<div class="bub">'+esc(val)+'</div>');
+  var baseA = (reviseStep==='preview' && reviseDraft) ? reviseDraft.a : reviseTarget.a;
+  var t=typing();
+  try{
+    var resp = await sb.functions.invoke('ask', { body:{ mode:'revise', question:reviseTarget.q, current_answer:baseA, instruction:val } });
+    t.remove();
+    var d=(resp&&resp.data)||{};
+    if(!d.ok){ teachBubble('⚠ AI 다듬기에 실패했어요. 지시를 바꿔 다시 시도하거나 취소해주세요.<div class="actrow"><a onclick="cancelRevise()">취소</a></div>'); return; }
+    reviseDraft={ a:d.a, summary:d.summary||'' };
+  }catch(e){ t.remove(); teachBubble('⚠ 오류가 발생했어요. 다시 시도해주세요.<div class="actrow"><a onclick="cancelRevise()">취소</a></div>'); return; }
+  reviseStep='preview';
+  teachBubble('이렇게 수정할게요:'+
+    (reviseDraft.summary?('<div style="font-size:12.5px;color:var(--sub);margin-top:4px">변경 요약: '+esc(reviseDraft.summary)+'</div>'):'')+
+    '<div class="draftbox"><b>Q.</b> '+esc(reviseTarget.q)+'<br><b>수정된 답변:</b> '+esc(reviseDraft.a)+'</div>'+
+    '더 고칠 게 있으면 계속 채팅으로 지시하세요.'+
+    '<div class="actrow"><a class="strong" onclick="applyRevise()">✅ 이대로 반영</a><a onclick="cancelRevise()">취소</a></div>');
+}
+async function applyRevise(){
+  if(!reviseDraft||!reviseTarget) return;
+  var up = await sb.from('faqs').update({ a:reviseDraft.a }).eq('id', reviseTarget.id);
+  if(up.error){ teachBubble('⚠ 반영 실패: '+esc(up.error.message)); return; }
+  var fid = reviseTarget.id;
+  reviseMode=false; reviseStep=null; reviseTarget=null; reviseDraft=null;
+  await loadData();
+  teachBubble('✅ <b>FAQ '+fid+' 수정 완료!</b> 지금부터 모든 영업사원의 답변에 새 내용이 반영됩니다.');
+}
+
+function submitInput(){ if(reviseMode && isAdmin){ handleReviseInput(); } else if(teachMode && isAdmin){ handleTeachInput(); } else { ask(); } }
 
 boot();
 
