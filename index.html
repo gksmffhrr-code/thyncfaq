@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>thynC 학습형 FAQ</title>
+<style>
+  :root{
+    --navy:#1F3864; --blue:#2E75B6; --blue-l:#EAF1FA; --blue-b:#cfe0f3;
+    --amber:#C55A11; --amber-l:#FBEDDF; --green:#2F7D32; --green-l:#E6F2E7;
+    --ink:#1f2430; --sub:#5b6678; --line:#e3e7ee; --bg:#f4f6fa; --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--ink);}
+  a{color:inherit;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;}
+  .hd{max-width:880px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .logo{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+  .logo span{color:#9fc2ea;font-weight:600;font-size:13px;margin-left:6px;}
+  .modes{margin-left:auto;display:flex;background:rgba(255,255,255,.12);border-radius:9px;padding:3px;}
+  .modes button{border:0;background:transparent;color:#cdd9ec;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:inherit;}
+  .modes button.on{background:#fff;color:var(--navy);}
+  .banner{background:#10223f;color:#bcd0ec;font-size:12px;padding:7px 18px;text-align:center;}
+  .banner b{color:#fff;}
+  .banner button{float:right;background:transparent;border:0;color:#7f9bc4;cursor:pointer;font-size:14px;line-height:1;}
+
+  /* search */
+  .hero{margin-top:26px;text-align:center;}
+  .hero h1{font-size:23px;margin:0 0 6px;color:var(--navy);}
+  .hero p{margin:0 0 18px;color:var(--sub);font-size:14px;}
+  .sbar{display:flex;gap:8px;background:var(--card);border:1.5px solid var(--blue-b);border-radius:13px;padding:8px 8px 8px 16px;box-shadow:0 4px 16px rgba(31,56,100,.07);}
+  .sbar input{flex:1;border:0;outline:0;font-size:15.5px;font-family:inherit;background:transparent;color:var(--ink);}
+  .sbar button{border:0;background:var(--blue);color:#fff;font-weight:700;font-size:14px;padding:0 22px;border-radius:9px;cursor:pointer;font-family:inherit;}
+  .sbar button:hover{background:#255f96;}
+  .chips{margin:13px 0 0;display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 13px;font-size:12.5px;color:var(--sub);cursor:pointer;}
+  .chip:hover{border-color:var(--blue);color:var(--blue);}
+
+  .result{margin-top:24px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:0 2px 10px rgba(31,56,100,.05);}
+  .ansmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .badge{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .b-cat{background:var(--blue-l);color:var(--blue);}
+  .b-new{background:var(--green-l);color:var(--green);}
+  .b-warn{background:var(--amber-l);color:var(--amber);}
+  .b-conf{margin-left:auto;font-size:12px;color:var(--sub);font-weight:600;}
+  .ansq{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 10px;line-height:1.5;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .ansq .qmark{color:var(--blue);margin-right:6px;}
+  .lead{font-size:14px;color:var(--blue);font-weight:700;margin:0 0 9px;}
+  .ansbody p{margin:0 0 9px;line-height:1.72;font-size:14.5px;white-space:pre-wrap;}
+  .src{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--sub);}
+  .src b{color:var(--ink);}
+  .fb{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sub);}
+  .fb button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--sub);}
+  .fb button:hover{border-color:var(--blue);color:var(--blue);}
+  .related{margin-top:16px;}
+  .related .rt{font-size:12px;color:var(--sub);font-weight:700;margin-bottom:7px;}
+  .related a{display:block;background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 13px;margin-bottom:6px;font-size:13px;cursor:pointer;color:var(--ink);text-decoration:none;}
+  .related a:hover{border-color:var(--blue);background:var(--blue-l);}
+  .related a .rc{font-size:11px;color:var(--blue);font-weight:700;margin-right:7px;}
+
+  /* mid candidates */
+  .midhead{font-size:15px;font-weight:700;color:var(--navy);margin:0 0 4px;}
+  .midsub{font-size:13px;color:var(--sub);margin:0 0 14px;}
+  .cand{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:9px;cursor:pointer;font-family:inherit;}
+  .cand:hover{border-color:var(--blue);background:var(--blue-l);}
+  .cand .cq{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:5px;}
+  .cand .cm{font-size:11.5px;color:var(--sub);}
+  .cand .cm .pct{color:var(--blue);font-weight:700;}
+  .noanswer{margin-top:6px;text-align:center;}
+  .noanswer button{background:transparent;border:1px solid var(--amber);color:var(--amber);border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .noanswer button:hover{background:var(--amber-l);}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(16,28,52,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
+  .overlay.on{display:flex;}
+  .modal{background:#fff;border-radius:16px;max-width:430px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal .mi{width:50px;height:50px;border-radius:50%;background:var(--amber-l);color:var(--amber);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;}
+  .modal h3{margin:0 0 8px;text-align:center;font-size:18px;color:var(--navy);}
+  .modal p{margin:0 0 16px;text-align:center;font-size:13.5px;color:var(--sub);line-height:1.6;}
+  .qbox{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:13.5px;color:var(--ink);margin-bottom:14px;word-break:break-word;}
+  .pmcontact{background:var(--blue-l);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--navy);margin-bottom:16px;}
+  .pmcontact b{display:block;font-size:12px;color:var(--blue);margin-bottom:3px;font-weight:700;}
+  .modal textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:inherit;font-size:13.5px;resize:vertical;min-height:62px;margin-bottom:14px;}
+  .mbtns{display:flex;gap:9px;}
+  .mbtns button{flex:1;border:0;border-radius:9px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .mbtns .pri{background:var(--amber);color:#fff;}
+  .mbtns .sec{background:#eef1f6;color:var(--sub);}
+  .donenote{text-align:center;color:var(--green);font-size:13px;font-weight:600;margin-top:4px;}
+
+  /* PM */
+  .pm{margin-top:24px;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;text-align:center;}
+  .stat .n{font-size:25px;font-weight:800;color:var(--navy);}
+  .stat .l{font-size:11.5px;color:var(--sub);margin-top:3px;}
+  .stat.alert .n{color:var(--amber);}
+  .pmsec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px;}
+  .pmsec h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  .pmsec .sd{font-size:12.5px;color:var(--sub);margin:0 0 16px;}
+  .qitem{border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:11px;}
+  .qitem .qq{font-size:14.5px;font-weight:600;margin-bottom:4px;}
+  .qitem .qmeta{font-size:11.5px;color:var(--sub);margin-bottom:10px;}
+  .qitem .qmeta .tag{background:var(--amber-l);color:var(--amber);padding:2px 8px;border-radius:10px;font-weight:700;margin-right:6px;}
+  .ansform{display:none;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line);}
+  .ansform.on{display:block;}
+  .ansform textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:inherit;font-size:13.5px;min-height:90px;resize:vertical;margin-bottom:9px;}
+  .ansform .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;}
+  .ansform select{border:1px solid var(--line);border-radius:8px;padding:9px;font-family:inherit;font-size:13px;flex:1;min-width:160px;}
+  .qbtns{display:flex;gap:8px;}
+  .qbtns button{border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .qbtns .open{background:var(--blue);color:#fff;}
+  .qbtns .pub{background:var(--green);color:#fff;}
+  .qbtns .del{background:#eef1f6;color:var(--sub);}
+  .empty{text-align:center;color:var(--sub);font-size:13px;padding:24px 0;}
+  .logrow{display:flex;align-items:center;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line);}
+  .logrow:last-child{border-bottom:0;}
+  .logrow .lq{flex:1;color:var(--ink);}
+  .logrow .lt{font-size:11px;color:#9aa4b3;}
+  .pill{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+  .pill.high{background:var(--green-l);color:var(--green);}
+  .pill.mid{background:var(--blue-l);color:var(--blue);}
+  .pill.low{background:var(--amber-l);color:var(--amber);}
+  .customitem{display:flex;gap:10px;align-items:flex-start;font-size:13px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .customitem:last-child{border-bottom:0;}
+  .customitem .cx{flex:1;}
+  .customitem .cx .cxq{font-weight:600;}
+  .customitem .cx .cxa{color:var(--sub);font-size:12.5px;margin-top:3px;}
+  .customitem button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--sub);font-family:inherit;}
+  .reset{margin-top:14px;text-align:right;}
+  .reset button{background:transparent;border:1px solid var(--line);color:#9aa4b3;border-radius:8px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .hide{display:none;}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .25s;z-index:60;}
+  .toast.on{opacity:1;}
+  @media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}.hero h1{font-size:20px;}}
+
+  #login-overlay{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:100;padding:18px;}
+  .loginbox{background:#fff;border-radius:16px;max-width:380px;width:100%;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+  .loginbox h2{margin:0 0 4px;font-size:20px;color:var(--navy);text-align:center;}
+  .loginbox p{margin:0 0 18px;font-size:12.5px;color:var(--sub);text-align:center;}
+  .loginbox input{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;font-family:inherit;font-size:14px;margin-bottom:10px;box-sizing:border-box;}
+  .loginbox button{width:100%;border:0;border-radius:9px;padding:13px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--blue);color:#fff;}
+  #lg-msg{font-size:12.5px;color:var(--amber);text-align:center;margin-top:10px;min-height:16px;}
+  .whobar{font-size:12px;color:#cdd9ec;display:flex;align-items:center;gap:8px;}
+  .whobar button{background:transparent;border:1px solid rgba(255,255,255,.3);color:#cdd9ec;border-radius:7px;padding:3px 9px;font-size:11.5px;cursor:pointer;font-family:inherit;}
+
+  .chatwrap{margin-top:16px;min-height:320px;max-height:calc(100vh - 240px);overflow-y:auto;padding:6px 2px;}
+  .msg{display:flex;margin:10px 0;}
+  .msg.user{justify-content:flex-end;}
+  .msg .bub{max-width:78%;padding:12px 16px;border-radius:16px;font-size:14.5px;line-height:1.7;}
+  .msg.user .bub{background:var(--blue);color:#fff;border-bottom-right-radius:4px;}
+  .msg.ai .bub{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;color:var(--ink);box-shadow:0 2px 8px rgba(31,56,100,.05);}
+  .msg .bub p{margin:0 0 8px;} .msg .bub p:last-child{margin-bottom:0;}
+  .dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#9fb6d8;margin:0 2px;animation:blink 1.2s infinite;}
+  .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  .srcrow{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+  .srcchip{font-size:11.5px;background:var(--blue-l);color:var(--blue);border-radius:14px;padding:4px 10px;cursor:pointer;}
+  .srcchip:hover{background:#d9e7f7;}
+  .actrow{margin-top:10px;display:flex;gap:14px;font-size:12px;}
+  .actrow a{cursor:pointer;color:var(--sub);}
+  .actrow a:hover{color:var(--blue);}
+  .actrow a.strong{color:var(--amber);font-weight:700;}
+  .warnline{margin-top:9px;font-size:12px;color:var(--amber);}
+  .miniq{font-size:12px;color:var(--blue);font-weight:700;margin-bottom:6px;}
+  .miniq2{font-weight:700;margin-bottom:8px;}
+  .bub.notice{background:var(--blue-l);border-color:var(--blue-b);font-size:13px;color:var(--navy);}
+  .askbar{position:sticky;bottom:12px;display:flex;gap:8px;background:var(--card);border:1.5px solid var(--blue-b);border-radius:13px;padding:8px 8px 8px 16px;box-shadow:0 4px 16px rgba(31,56,100,.1);margin-top:12px;}
+  .askbar input{flex:1;border:0;outline:0;font-size:15px;font-family:inherit;background:transparent;color:var(--ink);}
+  .askbar button{border:0;background:var(--blue);color:#fff;font-weight:700;font-size:14px;padding:10px 20px;border-radius:9px;cursor:pointer;font-family:inherit;}
+  .askbar button:hover{background:#255f96;}
+  .empty-chat{text-align:center;padding:44px 10px;}
+  .ec-icon{font-size:34px;margin-bottom:8px;}
+  .ec-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+  .ec-sub{font-size:13.5px;color:var(--sub);line-height:1.7;margin-bottom:16px;}
+  .empty-chat .chips{justify-content:center;}
+</style>
+</head>
+<body>
+
+<div id="login-overlay" style="display:none">
+  <div class="loginbox">
+    <h2>thynC 학습형 FAQ</h2>
+    <p>사내 전용 — 발급받은 계정으로 로그인하세요</p>
+    <input id="lg-email" type="email" placeholder="이메일" autocomplete="username">
+    <input id="lg-pw" type="password" placeholder="비밀번호" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">로그인</button>
+    <div id="lg-msg"></div>
+  </div>
+</div>
+
+<header>
+  <div class="hd">
+    <div class="logo">thynC <span>학습형 FAQ · 영업 지원</span></div>
+    <div id="whobar" class="whobar" style="display:none"><span id="who"></span><button onclick="doLogout()">로그아웃</button></div>
+    <div class="modes">
+      <button id="m-rep" class="on" onclick="setMode('rep')">영업사원</button>
+      <button id="m-pm" onclick="setMode('pm')">PM 관리자</button>
+    </div>
+  </div>
+  <div class="banner" id="banner">
+    <button onclick="document.getElementById('banner').style.display='none'">×</button>
+    <b>사내용</b> — 로그인 후 이용하세요. 답을 못 찾으면 PM에게 자동 전달됩니다. (계정 문의: 담당 PM)
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- 영업사원 모드 -->
+  <section id="view-rep">
+    <div id="chat" class="chatwrap"></div>
+    <div class="askbar">
+      <input id="q" type="text" placeholder="질문을 입력하세요 — 후속 질문도 이어서 할 수 있어요" autocomplete="off"
+             onkeydown="if(event.key==='Enter')ask()">
+      <button onclick="ask()">전송</button>
+    </div>
+  </section>
+
+  <!-- PM 모드 -->
+  <section id="view-pm" class="pm hide">
+    <div class="stats">
+      <div class="stat"><div class="n" id="s-total">0</div><div class="l">전체 FAQ</div></div>
+      <div class="stat"><div class="n" id="s-custom">0</div><div class="l">PM 추가 답변</div></div>
+      <div class="stat alert"><div class="n" id="s-queue">0</div><div class="l">미답변 대기</div></div>
+      <div class="stat"><div class="n" id="s-log">0</div><div class="l">누적 질문</div></div>
+    </div>
+
+    <div class="pmsec">
+      <h2>미답변 질문 큐</h2>
+      <p class="sd">영업사원이 답을 못 찾아 전달된 질문입니다. 답변을 작성해 지식베이스에 추가하면 즉시 검색에 반영됩니다.</p>
+      <div id="queue"></div>
+    </div>
+
+    <div class="pmsec">
+      <h2>최근 질문 로그</h2>
+      <p class="sd">영업사원이 실제로 무엇을 묻는지 — 자주 나오지만 답이 약한 주제를 파악하세요.</p>
+      <div id="log"></div>
+    </div>
+
+    <div class="pmsec">
+      <h2>PM이 추가한 답변</h2>
+      <p class="sd">학습 루프로 새로 등록된 FAQ입니다.</p>
+      <div id="customlist"></div>
+      <div class="reset"><button onclick="resetDemo()">데모 데이터 초기화</button></div>
+    </div>
+  </section>
+</div>
+
+<!-- LOW/문의 모달 -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* thynC 학습형 FAQ 검색 엔진 (의미 검색 근사: 토큰 + 한글 바이그램 + 동의어) */
+(function (global) {
+  'use strict';
+
+  // 도메인 동의어/확장 사전: 같은 의미의 표현을 한 묶음으로 본다
+  var SYN = [
+    ['emr', '전자의무기록', '연동', '차트', 'his', 'ocs'],
+    ['중계pc', '중계서버', '중계', '릴레이', 'relay'],
+    ['워런티', '보증', '보증기간', '무상보증', '계약기간'],
+    ['삭감', '청구', '수가', '심평원', '환수', '실사'],
+    ['ex871', 'e6544', 'e7230', '코드'],
+    ['데모', '시연', '답사', '실측'],  // PoC는 특이 케이스로 DB에서 제외 → PoC 질의는 PM 문의로 유도
+    ['공사', '설치', '구축', '시공', '포설'],
+    ['배터리', '전원', '충전', 'cr2450'],
+    ['센서', '산소포화도', 'spo2', '골무', '클립', '측정기', '디바이스'],
+    ['교육', '사용법', '트레이닝', '강의'],
+    ['계약', '견적', '구매', '구독', '사용량', '리스', '정산'],
+    ['서버', '온프레미스', '워크스테이션', '랙', '스토리지'],
+    ['알람', '알림', '경보', '경고'],
+    ['낙상', 'fall'],
+    ['모바일', '태블릿', '앱', '게이트웨이', '갤럭시'],
+    ['보관', '저장', '데이터', '추출'],
+    ['홀터', 'holter'],
+    ['부정맥', 'afib', 'vtach', 'vt', 'ecg', '심전도', '파형'],
+    ['ews', '중증도', '점수', '우선순위'],
+    ['as', '고장', '수리', '교체', '파손'],
+    ['네트워크', '폐쇄망', '와이파이', 'wifi', '방화벽', 'ip'],
+    ['입찰', '서류', '규격서', '허가증', '품목허가'],
+    ['pacs', '이미지', '결과지', '레포트', '보고서'],
+    ['이중화', 'ups', '비상전원', '정전'],
+    ['진료실', 'pc', '대시보드', '모니터', '화면'],
+    ['해지', '파기', '해제', '중도해지'],
+    ['소유권', '귀속'],
+    ['단가', '사용료', '검사료'],
+    ['세금계산서', '거래내역서', '정산']
+  ];
+  var SYN_MAP = {};
+  SYN.forEach(function (grp) {
+    var canon = grp[0];
+    grp.forEach(function (w) { SYN_MAP[w] = canon; });
+  });
+
+  // 보조어: 이 단어들'만' 매칭되면 실질 주제어가 없는 것 → HIGH/MID 불가
+  // EXACT: 정확히 일치할 때만 보조어 (사용→O, 사용량→X 처럼 명사 충돌 방지)
+  var GENERIC_EXACT = {'방법':1,'사용':1,'확인':1,'자동':1,'설정':1,'진행':1,'처리':1,
+    '제공':1,'운영':1,'관리':1,'여부':1,'경우':1,'관련':1,'방식':1,'종류':1,'수준':1,
+    '기준':1,'발생':1,'안내':1,'문의':1,'병원':1};  // '병원'은 준불용어(EXACT만, 병원망 등 보호)
+  // PREFIX: 활용형까지 보조어 (가능/가능해요, 어디/어디에, 얼마/얼마예요 등) — 명사 시작이 없는 어근만
+  var GENERIC_PREFIX = ['가능', '어떻게', '얼마', '무엇', '뭐예', '되나', '하나요', '필요',
+    '어디', '언제', '누구', '누가'];
+  function isGeneric(k) {
+    if (GENERIC_EXACT[k]) return true;
+    for (var i = 0; i < GENERIC_PREFIX.length; i++) { if (k.indexOf(GENERIC_PREFIX[i]) === 0) return true; }
+    return false;
+  }
+
+  var STOP = {'은':1,'는':1,'이':1,'가':1,'을':1,'를':1,'의':1,'에':1,'와':1,'과':1,'도':1,
+    '나요':1,'까요':1,'어요':1,'해요':1,'인가요':1,'되나요':1,'있나요':1,'하나요':1,'하면':1,
+    '어떻게':1,'무엇':1,'뭐':1,'뭔':1,'어디':1,'언제':1,'얼마':1,'왜':1,'무슨':1,'어느':1,
+    '있어':1,'있을':1,'되는':1,'대해':1,'관련':1,'경우':1,'그리고':1,'또는':1,'좀':1,'요':1,
+    '있어요':1,'있을까요':1,'있는지':1,'있죠':1,'있는':1,'해주세요':1,'해주실':1,'해줘요':1,'해줘':1,
+    '주세요':1,'줘요':1,'돼요':1,'되요':1,'될까요':1,'되는지':1,'되죠':1,'된가요':1,'됩니까':1,
+    '할까요':1,'하는지':1,'합니까':1,'어때요':1,'뭔가요':1,'뭐죠':1,'뭐예요':1,'어떤가요':1,
+    '건가요':1,'인지':1,'일까요':1,'그거':1,'이거':1,'저거':1,'혹시':1,'바로':1,'그냥':1};
+
+  function normalize(s) {
+    return (s || '').toLowerCase()
+      .replace(/[^0-9a-z가-힣\s]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  // 단어 토큰 + 동의어 정규화 + 조사 약식 제거 (중복 제거)
+  function wordTokens(s) {
+    var toks = normalize(s).split(' ');
+    var out = {};
+    toks.forEach(function (t) {
+      if (!t || STOP[t]) return;
+      if (SYN_MAP[t]) out[SYN_MAP[t]] = 1;                 // 정확히 일치하는 동의어
+      if (t.length >= 3) {                                  // 부분일치는 3자 이상 키만 (짧은 키 오탐 방지)
+        for (var k in SYN_MAP) { if (k.length >= 3 && t.indexOf(k) !== -1) out[SYN_MAP[k]] = 1; }
+      }
+      if (t.length >= 2) out[t] = 1;                        // 원 토큰 유지
+    });
+    return Object.keys(out);
+  }
+
+  // 한글/영문 문자 바이그램 (형태소 변형에 강함)
+  function bigrams(s) {
+    var n = normalize(s).replace(/\s+/g, '');
+    var g = {};
+    for (var i = 0; i < n.length - 1; i++) g[n.substr(i, 2)] = 1;
+    return g;
+  }
+
+  function jaccard(a, b) {
+    var inter = 0, ka = Object.keys(a);
+    if (!ka.length) return 0;
+    ka.forEach(function (k) { if (b[k]) inter++; });
+    var uni = ka.length + Object.keys(b).length - inter;
+    return uni ? inter / uni : 0;
+  }
+
+  function buildIndex(faqs) {
+    var df = {}, docs = [];
+    faqs.forEach(function (f) {
+      var qT = wordTokens(f.q), aT = wordTokens(f.a), cT = wordTokens(f.cat);
+      var bag = {};                 // 토큰 -> 가중치 (질문 3, 변형질문 3, 카테고리 2, 답변 1)
+      qT.forEach(function (t) { bag[t] = (bag[t] || 0) + 3; });
+      // 변형 질문(영업사원 실제 말투): 질문과 동급(3)으로 색인 → 다양한 표현 매칭
+      var variants = f.v || [];
+      var qbgAll = bigrams(f.q);
+      variants.forEach(function (vq) {
+        wordTokens(vq).forEach(function (t) { bag[t] = (bag[t] || 0) + 3; });
+        var vb = bigrams(vq);
+        for (var g in vb) qbgAll[g] = 1;   // 변형의 표면(바이그램)도 합쳐 표면유사 매칭 향상
+      });
+      cT.forEach(function (t) { bag[t] = (bag[t] || 0) + 2; });
+      aT.forEach(function (t) { bag[t] = (bag[t] || 0) + 1; });
+      Object.keys(bag).forEach(function (t) { df[t] = (df[t] || 0) + 1; });
+      docs.push({ f: f, bag: bag, qbg: qbgAll, qtokens: qT });
+    });
+    return { df: df, docs: docs, N: faqs.length };
+  }
+
+  function idf(df, N, t) { return Math.log(1 + N / (1 + (df[t] || 0))); }
+
+  function search(query, index, k) {
+    var qTokens = wordTokens(query);
+    var qbg = bigrams(query);
+    var uniq = {}; qTokens.forEach(function (t) { uniq[t] = 1; });
+    var qKeys = Object.keys(uniq);
+    // 같은 어근의 조사 변형 제거: 'X'와 'X에'가 같이 있으면 기본형 'X'만 남김
+    qKeys = qKeys.filter(function (k) {
+      return !qKeys.some(function (k2) {
+        return k2 !== k && k2.length >= 2 && k.length > k2.length && k.indexOf(k2) === 0;
+      });
+    });
+
+    // 질문 토큰 해석: 등록 토큰은 그대로, 미등록 토큰은 접미 제거(조사/어미) 후
+    // 어휘 부분포함(soft)으로 복원 (예: '가산이'→'가산'⊂'가산되어'). 그래도 없으면 평가 제외.
+    function dfContains(p) { // p를 포함하는 토큰을 가진 문서 수 (pseudo-df)
+      var n = 0;
+      index.docs.forEach(function (d) {
+        for (var bt in d.bag) { if (bt.length > p.length && bt.indexOf(p) !== -1) { n++; return; } }
+      });
+      return n;
+    }
+    var resolved = [], seen = {};
+    qKeys.forEach(function (t) {
+      if ((index.df[t] || 0) > 0) {
+        if (!seen[t]) { seen[t] = 1; resolved.push({ k: t, soft: false, w: idf(index.df, index.N, t) }); }
+        return;
+      }
+      if (t.length < 3) return;
+      // 1순위: 접미 제거 후 '정확 등록 토큰' 찾기 (대백과사전에 → 대백과사전)
+      for (var cut = 0; cut <= 2; cut++) {
+        var p = t.slice(0, t.length - cut);
+        if (p.length < 2) break;
+        if ((index.df[p] || 0) > 0) {
+          if (!seen[p]) { seen[p] = 1; resolved.push({ k: p, soft: false, w: idf(index.df, index.N, p) }); }
+          return;
+        }
+      }
+      // 2순위: 어휘 부분포함 soft 매칭 (가산이 → 가산 ⊂ 가산되어)
+      for (var cut2 = 0; cut2 <= 2; cut2++) {
+        var p2 = t.slice(0, t.length - cut2);
+        if (p2.length < 3) break; // soft는 3자 이상만 (오탐 방지)
+        var pdf = dfContains(p2);
+        if (pdf > 0) {
+          if (!seen[p2]) { seen[p2] = 1; resolved.push({ k: p2, soft: true, w: Math.log(1 + index.N / (1 + pdf)) }); }
+          return;
+        }
+      }
+    });
+    var sumIdf = 0;
+    resolved.forEach(function (r) { sumIdf += r.w; });
+
+    var scored = index.docs.map(function (d) {
+      // idf 가중 커버리지: 질문의 핵심어가 얼마나 매칭됐나 (위치 가중 + 복합어/soft 부분일치)
+      var matchedIdf = 0, hit = 0, chit = 0;  // chit: 보조어 아닌 '주제어' 매칭 수
+      resolved.forEach(function (r) {
+        var matched = false;
+        if (!r.soft && d.bag[r.k]) {
+          var w = d.bag[r.k]; // 3=질문/변형, 2=카테고리, 1=답변
+          var posW = w >= 3 ? 1.0 : (w >= 2 ? 0.9 : 0.72);
+          matchedIdf += r.w * posW;
+          matched = true;
+        } else if (r.k.length >= 2 && (r.soft || r.k.length >= 3)) {
+          for (var bt in d.bag) {
+            if (bt.length > r.k.length && bt.indexOf(r.k) !== -1) {
+              matchedIdf += r.w * 0.6; matched = true; break;
+            }
+          }
+        }
+        if (matched) { hit++; if (!isGeneric(r.k)) chit++; }
+      });
+      var coverW = sumIdf > 0 ? matchedIdf / sumIdf : 0; // 0~1 (핵심 신호)
+      var cover = resolved.length ? hit / resolved.length : 0;
+      var jac = jaccard(qbg, d.qbg);                     // 질문 표면 유사 (보조)
+      var conf = 0.82 * coverW + 0.18 * jac;
+      return { f: d.f, conf: Math.max(0, Math.min(1, conf)), cover: cover, coverW: coverW, chit: chit };
+    });
+
+    scored.sort(function (a, b) { return b.conf - a.conf; });
+    // 답변 후보는 '실질 주제어(chit>0)'를 가진 문서만 — 보조어만 매칭된 문서가 1등을 차지하는 것 방지
+    var contentScored = scored.filter(function (s) { return s.chit > 0; });
+    var top = contentScored[0] || scored[0] || { conf: 0, cover: 0, coverW: 0, chit: 0 };
+    var pct = Math.round(top.conf * 100);
+
+    var band;
+    if (resolved.length === 0 || contentScored.length === 0) band = 'low'; // 주제어 매칭 문서 없음
+    else if (top.conf >= 0.62 && top.coverW >= 0.6) band = 'high';
+    else if (top.conf >= 0.3) band = 'mid';
+    else band = 'low';
+
+    return {
+      band: band,
+      confidence: pct,
+      top: top,
+      candidates: contentScored.slice(0, k || 3).filter(function (s) { return s.conf > 0.08; })
+    };
+  }
+
+  var API = { buildIndex: buildIndex, search: search, _wordTokens: wordTokens, normalize: normalize };
+  global.FAQEngine = API;
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+
+<script>
+/* thynC 학습형 FAQ — Supabase + LLM 대화형 클라이언트 v2 */
+if (!window.supabase) {
+  document.body.innerHTML = '<div style="max-width:480px;margin:80px auto;font-family:sans-serif;text-align:center;color:#1F3864">'+
+    '<h2>⚠ 필수 구성요소를 불러오지 못했어요</h2>'+
+    '<p style="color:#5b6678;line-height:1.7">인터넷 연결을 확인한 뒤 페이지를 새로고침(Cmd+Shift+R)해 주세요.<br>'+
+    '사내망이라면 cdn.jsdelivr.net 접속 허용이 필요합니다.</p></div>';
+  throw new Error('supabase-js load failed');
+}
+var SUPA_URL = 'https://bycukmxkaedijxteohhu.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5Y3VrbXhrYWVkaWp4dGVvaGh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzIyMzcsImV4cCI6MjA5NjQwODIzN30.wbhqJr929cYq36rqSeAGJeUucZAMtOoscESCyFATWEw';
+var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+window.addEventListener('error', function(ev){
+  var t = document.getElementById('toast');
+  if(t){ t.textContent = '⚠ 오류: ' + (ev.message||'알 수 없음'); t.classList.add('on'); }
+});
+
+var faqs = [], index = null, isAdmin = false, me = null;
+var queueCache = [], logsCache = [], pmAddedCache = [];
+var history = [];          // 대화 맥락 {role:'user'|'assistant', content}
+var lastCands = [];        // 직전 턴 후보 (후속 질문 대응)
+var aiOffNotified = false;
+
+var CATS = ['제품·기능·장비','모니터링·알람','모바일·태블릿','계약·견적·영업 프로세스','데모·실측',
+            '설치·공사','EMR·전산 연동','교육','운영·유지보수·AS','청구·삭감','준법·규제·장비신고','홍보·언론'];
+var PM_CONTACT = { name: '이현주 PM (서울2 전담)', extra: '사내 메신저 · 대백과사전 요청' };
+var WARN_CATS = { '청구·삭감': 1, '준법·규제·장비신고': 1 };
+var EXAMPLES = ['중계PC에 윈도우 꼭 깔아야 하나요?','워런티가 대백과사전에 안 적혀 있으면?',
+  '데모는 며칠 걸려요?','EX871 삭감되면 병원에 뭐라고 설명하죠?','산소포화도 센서 바꿀 수 있어요?'];
+
+/* ---------- 유틸 ---------- */
+function esc(s){ return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function fmtTime(t){ var d=new Date(t), n=new Date(); var diff=(n-d)/1000;
+  if(diff<60)return '방금 전'; if(diff<3600)return Math.floor(diff/60)+'분 전';
+  if(diff<86400)return Math.floor(diff/3600)+'시간 전';
+  return (d.getMonth()+1)+'/'+d.getDate(); }
+function ansHTML(text){ return (text||'').split('\n').filter(function(l){return l.trim();})
+  .map(function(l){return '<p>'+esc(l.trim())+'</p>';}).join(''); }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on');},2400); }
+
+/* ---------- 인증 ---------- */
+function showLogin(on){ document.getElementById('login-overlay').style.display = on ? 'flex' : 'none'; }
+async function doLogin(){
+  var email = document.getElementById('lg-email').value.trim();
+  var pw = document.getElementById('lg-pw').value;
+  var msg = document.getElementById('lg-msg');
+  if(!email || !pw){ msg.textContent = '이메일과 비밀번호를 입력하세요.'; return; }
+  msg.textContent = '로그인 중…';
+  var r = await sb.auth.signInWithPassword({ email: email, password: pw });
+  if(r.error){ msg.textContent = '로그인 실패: 계정 정보를 확인하세요. (계정 문의: PM)'; return; }
+  msg.textContent = '';
+}
+async function doLogout(){ await sb.auth.signOut(); location.reload(); }
+
+async function boot(){
+  var s = await sb.auth.getSession();
+  if(s.data && s.data.session){ enter(s.data.session); } else { showLogin(true); }
+  sb.auth.onAuthStateChange(function(ev, session){ if(ev==='SIGNED_IN' && session && !me){ enter(session); } });
+}
+async function enter(session){
+  me = session.user.email;
+  showLogin(false);
+  document.getElementById('who').textContent = me;
+  document.getElementById('whobar').style.display = '';
+  await loadData();
+  emptyState();
+}
+
+/* ---------- 데이터 ---------- */
+async function loadData(){
+  var r = await sb.from('faqs').select('id,cat,q,a,is_new,variants,origin').eq('status','active').order('id');
+  if(r.error){ toast('데이터 로드 실패: ' + r.error.message); return; }
+  faqs = (r.data||[]).map(function(x){ return { id:x.id, cat:x.cat, q:x.q, a:x.a, isNew:x.is_new, v:x.variants||[], origin:x.origin }; });
+  index = FAQEngine.buildIndex(faqs);
+  var ad = await sb.from('admins').select('email');
+  isAdmin = !ad.error && (ad.data||[]).some(function(x){ return x.email === me; });
+  document.getElementById('m-pm').style.display = isAdmin ? '' : 'none';
+  if(faqs.length === 0 && isAdmin){ toast('FAQ가 비어 있습니다. 시드 도구로 초기 데이터를 업로드하세요.'); }
+  if(isAdmin) refreshPM();
+}
+
+/* ---------- 채팅 UI ---------- */
+function chatEl(){ return document.getElementById('chat'); }
+function scrollChat(){ var c=chatEl(); if(c) c.scrollTop = c.scrollHeight; }
+
+function emptyState(){
+  if(history.length) return;
+  var chips = EXAMPLES.map(function(e){
+    return '<span class="chip" onclick="useExample(this)">'+esc(e)+'</span>';
+  }).join('');
+  chatEl().innerHTML =
+    '<div class="empty-chat"><div class="ec-icon">💬</div>'+
+    '<div class="ec-title">무엇이든 물어보세요</div>'+
+    '<div class="ec-sub">계약·설치·운영·EMR·청구 등 영업 현장 질문에 사내 FAQ를 근거로 답해드립니다.<br>후속 질문도 이어서 할 수 있어요.</div>'+
+    '<div class="chips">'+chips+'</div></div>';
+}
+function useExample(el){ document.getElementById('q').value = el.textContent; ask(); }
+
+function addBubble(role, html, cls){
+  var div = document.createElement('div');
+  div.className = 'msg ' + role + (cls?(' '+cls):'');
+  div.innerHTML = html;
+  if(history.length<=1 && chatEl().querySelector('.empty-chat')) chatEl().innerHTML='';
+  chatEl().appendChild(div);
+  scrollChat();
+  return div;
+}
+function typing(){
+  return addBubble('ai','<div class="bub"><span class="dots"><i></i><i></i><i></i></span></div>','typing');
+}
+
+/* ---------- 질문 처리 ---------- */
+async function ask(){
+  if(!index){ toast('데이터 로딩 중입니다. 잠시 후 다시 시도하세요.'); return; }
+  var input = document.getElementById('q');
+  var q = input.value.trim();
+  if(!q) return;
+  input.value=''; input.focus();
+
+  history.push({role:'user', content:q});
+  addBubble('user','<div class="bub">'+esc(q)+'</div>');
+
+  var r, merged = [];
+  try{
+    // 후보: 이번 질문 + 직전 후보(후속질문 대비) 병합
+    r = FAQEngine.search(q, index, 12);
+    var seen = {};
+    (r.candidates||[]).forEach(function(c){ if(!seen[c.f.id]){seen[c.f.id]=1; merged.push(c.f);} });
+    lastCands.forEach(function(f){ if(!seen[f.id] && merged.length<14){seen[f.id]=1; merged.push(f);} });
+    sb.from('query_logs').insert({ q:q, band:r.band, confidence:r.confidence, top_faq:(r.top&&r.top.f?r.top.f.id:null), asked_by:me }).then(function(){});
+  }catch(e){
+    addBubble('ai','<div class="bub">⚠ 검색 처리 중 오류가 발생했어요. 새로고침 후 다시 시도해주세요. ('+esc((e&&e.message)||'오류')+')</div>');
+    return;
+  }
+
+  if(merged.length===0){ noAnswerBubble(q); return; }
+
+  var t = typing();
+  try{
+    var payload = {
+      question: q,
+      history: history.slice(-7, -1),   // 직전 최대 6턴 (이번 질문 제외)
+      candidates: merged.map(function(f){ return { id:f.id, cat:f.cat, q:f.q, a:f.a }; })
+    };
+    var resp = await sb.functions.invoke('ask', { body: payload });
+    if(resp.error) throw resp.error;
+    var d = resp.data || {};
+    t.remove();
+    if(d.fallback){ aiOffNotice(); localBubble(q, r); return; }
+    if(d.found){
+      lastCands = merged;
+      history.push({role:'assistant', content:d.answer});
+      aiBubble(d.answer, d.sources||[], q);
+    } else {
+      noAnswerBubble(q);
+    }
+  }catch(e){ t.remove(); localBubble(q, r); }
+}
+
+function aiBubble(answer, sources, q){
+  var srcHTML = sources.map(function(s){
+    return '<a class="srcchip" onclick="showOrig('+s.id+')">FAQ '+s.id+' · '+esc((s.q||'').slice(0,28))+'…</a>';
+  }).join('');
+  var warn = sources.some(function(s){
+    var f = faqs.filter(function(x){return x.id===s.id;})[0];
+    return f && WARN_CATS[f.cat];
+  }) ? '<div class="warnline">⚠ 청구·준법 관련 — 실행 전 최종 확인 권장</div>' : '';
+  addBubble('ai',
+    '<div class="bub">'+ansHTML(answer)+ warn +
+    (srcHTML?('<div class="srcrow">'+srcHTML+'</div>'):'')+
+    '<div class="actrow"><a onclick="toast(\'피드백 감사합니다 👍\')">👍 도움돼요</a>'+
+    '<a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">PM 문의</a></div></div>');
+}
+
+function noAnswerBubble(q){
+  history.push({role:'assistant', content:'(답변 없음 — PM 문의 안내)'});
+  addBubble('ai',
+    '<div class="bub">이 질문은 아직 학습된 FAQ에 답이 없어요. PM에게 전달해두면, 답변이 등록되는 대로 다음부터 바로 답해드릴 수 있습니다.'+
+    '<div class="actrow"><a class="strong" onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">📨 PM에게 질문 전달</a></div></div>');
+  openContact(q);   // 팝업 자동 표시
+}
+
+function localBubble(q, r){
+  // AI 미연결/오류 시: 로컬 검색 결과로 응답 (서비스 지속)
+  if(r.band==='high' && r.top && r.top.f){
+    var f = r.top.f;
+    history.push({role:'assistant', content:f.a});
+    addBubble('ai','<div class="bub"><div class="miniq">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+
+      '<div class="srcrow"><a class="srcchip" onclick="showOrig('+f.id+')">'+esc(f.cat)+' · FAQ '+f.id+'</a></div>'+
+      '<div class="actrow"><a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">PM 문의</a></div></div>');
+  } else if(r.band==='mid' && r.candidates && r.candidates.length){
+    var list = r.candidates.slice(0,3).map(function(c){
+      return '<a class="srcchip" onclick="showOrig('+c.f.id+')">'+esc(c.f.q.slice(0,40))+'…</a>';
+    }).join('');
+    history.push({role:'assistant', content:'(후보 제시)'});
+    addBubble('ai','<div class="bub">찾으시는 게 이 중에 있을까요?<div class="srcrow">'+list+'</div>'+
+      '<div class="actrow"><a onclick="openContact('+JSON.stringify(q).replace(/"/g,'&quot;')+')">원하는 답 없음 — PM 문의</a></div></div>');
+  } else { noAnswerBubble(q); }
+}
+
+function aiOffNotice(){
+  if(aiOffNotified) return; aiOffNotified = true;
+  addBubble('ai','<div class="bub notice">ℹ️ AI 답변 모드가 아직 꺼져 있어요(API 키 미등록). 등록 전까지는 기본 검색으로 답해드립니다.'+(isAdmin?' — 가이드 5단계 참고':'')+'</div>');
+}
+
+function showOrig(id){
+  var f = faqs.filter(function(x){return x.id===id;})[0]; if(!f) return;
+  history.push({role:'assistant', content:'(원문 표시: FAQ '+id+')'});
+  addBubble('ai','<div class="bub"><div class="miniq">📄 원문 FAQ '+f.id+' · '+esc(f.cat)+'</div>'+
+    '<div class="miniq2">Q. '+esc(f.q)+'</div>'+ansHTML(f.a)+'</div>');
+}
+
+/* ---------- PM 문의 모달 ---------- */
+function openContact(q){
+  q = (q||'').trim();
+  document.getElementById('modal').innerHTML =
+    '<div class="mi">💬</div>'+
+    '<h3>PM에게 질문 전달</h3>'+
+    '<p>답변이 등록되면 다음부터 바로 안내됩니다.</p>'+
+    '<div class="qbox">'+esc(q)+'</div>'+
+    '<div class="pmcontact"><b>담당 PM</b>'+esc(PM_CONTACT.name)+'<br>'+esc(PM_CONTACT.extra)+'</div>'+
+    '<textarea id="note" placeholder="상황·맥락을 덧붙이면 PM이 더 정확히 답할 수 있어요 (선택)"></textarea>'+
+    '<div class="mbtns">'+
+      '<button class="sec" onclick="closeModal()">닫기</button>'+
+      '<button class="pri" onclick="sendToPM('+JSON.stringify(q).replace(/"/g,'&quot;')+')">PM에게 전달</button>'+
+    '</div>';
+  document.getElementById('overlay').classList.add('on');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('on'); }
+document.getElementById('overlay').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+async function sendToPM(q){
+  var note = (document.getElementById('note')||{}).value || '';
+  var r = await sb.from('unanswered_queue').insert({ q:q, note:note, asked_by:me });
+  document.getElementById('modal').innerHTML =
+    '<div class="mi" style="background:var(--green-l);color:var(--green)">✓</div>'+
+    '<h3>전달 완료</h3>'+
+    '<p>답변이 등록되면 이 질문도 바로 답할 수 있게 됩니다.</p>'+
+    '<div class="donenote">'+(r.error?'전송 오류: '+esc(r.error.message):'미답변 큐에 등록되었습니다.')+'</div>'+
+    '<div class="mbtns" style="margin-top:16px"><button class="pri" style="background:var(--blue)" onclick="closeModal()">확인</button></div>';
+  if(isAdmin) refreshPM();
+}
+
+/* ---------- 모드 전환 ---------- */
+function setMode(m){
+  document.getElementById('m-rep').classList.toggle('on', m==='rep');
+  document.getElementById('m-pm').classList.toggle('on', m==='pm');
+  document.getElementById('view-rep').classList.toggle('hide', m!=='rep');
+  document.getElementById('view-pm').classList.toggle('hide', m!=='pm');
+  if(m==='pm') refreshPM();
+}
+
+/* ---------- PM 대시보드 ---------- */
+async function refreshPM(){
+  if(!isAdmin) return;
+  var qr = await sb.from('unanswered_queue').select('*').eq('status','pending').order('created_at',{ascending:false});
+  queueCache = qr.data || [];
+  var lr = await sb.from('query_logs').select('*').order('created_at',{ascending:false}).limit(12);
+  logsCache = lr.data || [];
+  var cr = await sb.from('query_logs').select('id',{count:'exact',head:true});
+  var logCount = cr.count || logsCache.length;
+  pmAddedCache = faqs.filter(function(f){ return f.origin==='pm'; });
+
+  document.getElementById('s-total').textContent = faqs.length;
+  document.getElementById('s-custom').textContent = pmAddedCache.length;
+  document.getElementById('s-queue').textContent = queueCache.length;
+  document.getElementById('s-log').textContent = logCount;
+
+  var qel = document.getElementById('queue');
+  if(!queueCache.length){ qel.innerHTML='<div class="empty">대기 중인 미답변 질문이 없습니다. 👍</div>'; }
+  else{ qel.innerHTML = queueCache.map(function(it){
+    var opts = CATS.map(function(c){return '<option>'+c+'</option>';}).join('');
+    return '<div class="qitem">'+
+      '<div class="qq">'+esc(it.q)+'</div>'+
+      '<div class="qmeta"><span class="tag">미답변</span>'+fmtTime(it.created_at)+(it.asked_by?(' · '+esc(it.asked_by)):'')+(it.note?(' · 메모: '+esc(it.note)):'')+'</div>'+
+      '<div class="qbtns">'+
+        '<button class="open" onclick="toggleForm('+it.id+')">답변 작성</button>'+
+        '<button class="del" onclick="dropQueue('+it.id+')">삭제</button>'+
+      '</div>'+
+      '<div class="ansform" id="af-'+it.id+'">'+
+        '<textarea id="at-'+it.id+'" placeholder="영업사원이 바로 읽을 수 있는 답변을 작성하세요."></textarea>'+
+        '<div class="row"><select id="ac-'+it.id+'">'+opts+'</select>'+
+          '<button class="pub" onclick="publish('+it.id+')">지식베이스에 추가</button></div>'+
+      '</div></div>';
+  }).join(''); }
+
+  var lel = document.getElementById('log');
+  if(!logsCache.length){ lel.innerHTML='<div class="empty">아직 질문 기록이 없습니다.</div>'; }
+  else{ lel.innerHTML = logsCache.map(function(l){
+    return '<div class="logrow"><span class="lq">'+esc(l.q)+'</span>'+
+      '<span class="pill '+l.band+'">'+({high:'답변',mid:'후보',low:'미답변'}[l.band]||l.band)+' '+(l.confidence||0)+'%</span>'+
+      '<span class="lt">'+fmtTime(l.created_at)+'</span></div>';
+  }).join(''); }
+
+  var cel = document.getElementById('customlist');
+  if(!pmAddedCache.length){ cel.innerHTML='<div class="empty">아직 PM이 추가한 답변이 없습니다.</div>'; }
+  else{ cel.innerHTML = pmAddedCache.map(function(c){
+    return '<div class="customitem"><div class="cx"><div class="cxq">'+esc(c.q)+'</div>'+
+      '<div class="cxa">'+esc((c.a||'').slice(0,90))+((c.a||'').length>90?'…':'')+' · '+esc(c.cat)+'</div></div>'+
+      '<button onclick="removeCustom('+c.id+')">보관 처리</button></div>';
+  }).join(''); }
+}
+function toggleForm(id){ document.getElementById('af-'+id).classList.toggle('on'); }
+async function dropQueue(id){ await sb.from('unanswered_queue').update({status:'dismissed'}).eq('id',id); refreshPM(); }
+async function publish(id){
+  var it = queueCache.filter(function(x){return x.id===id;})[0]; if(!it) return;
+  var a = document.getElementById('at-'+id).value.trim();
+  var cat = document.getElementById('ac-'+id).value;
+  if(!a){ toast('답변 내용을 입력하세요.'); return; }
+  var ins = await sb.from('faqs').insert({ cat:cat, q:it.q, a:a, is_new:true, origin:'pm', variants:[] });
+  if(ins.error){ toast('추가 실패: '+ins.error.message); return; }
+  await sb.from('unanswered_queue').update({status:'answered'}).eq('id',id);
+  await loadData();
+  refreshPM();
+  toast('지식베이스에 추가되어 즉시 반영되었습니다.');
+}
+async function removeCustom(id){
+  if(!confirm('이 항목을 검색에서 제외(보관)할까요?')) return;
+  await sb.from('faqs').update({status:'archived'}).eq('id',id);
+  await loadData(); refreshPM();
+}
+function resetDemo(){ toast('운영 모드에서는 데이터 초기화가 비활성화되어 있습니다.'); }
+
+boot();
+
+</script>
+</body>
+</html>
