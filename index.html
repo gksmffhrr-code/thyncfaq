@@ -2,7 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="thynC FAQ">
 <title>thynC 학습형 FAQ</title>
 <style>
   :root{
@@ -181,6 +186,42 @@
   .bub.teach{background:#F0F7F0;border:1px solid #cde3cd;}
   .draftbox{background:var(--bg);border:1px dashed var(--line);border-radius:9px;padding:10px 12px;margin-top:8px;font-size:13px;line-height:1.7;}
   .draftbox b{color:var(--navy);}
+
+  /* ===== thynC 모바일 최적화 v1 (현장 배포) ===== */
+  html{-webkit-text-size-adjust:100%;}
+  @media(max-width:600px){
+    .wrap{padding:0 12px calc(84px + env(safe-area-inset-bottom));}
+    .hd{padding:10px 12px;gap:8px;}
+    .logo{font-size:16px;} .logo span{display:none;}
+    .modes button{padding:8px 12px;font-size:12.5px;}
+    .banner{font-size:11px;padding:7px 12px;line-height:1.5;}
+    .banner button{font-size:15px;}
+    .whobar{font-size:11px;order:3;width:100%;justify-content:flex-end;margin-top:2px;}
+    .hero{margin-top:18px;} .hero h1{font-size:19px;} .hero p{font-size:13px;}
+    .chatwrap{max-height:calc(100dvh - 210px);min-height:300px;margin-top:12px;}
+    .msg .bub{max-width:88%;font-size:15px;padding:11px 14px;line-height:1.65;}
+    .askbar{bottom:calc(8px + env(safe-area-inset-bottom));padding:7px 7px 7px 14px;gap:6px;}
+    .askbar input,.sbar input{font-size:16px;}
+    .askbar button{padding:12px 16px;min-height:46px;}
+    .sbar{padding:8px 8px 8px 14px;} .sbar button{padding:0 16px;min-height:44px;}
+    .chip{padding:9px 14px;font-size:13px;}
+    .srcchip{padding:7px 12px;font-size:12.5px;}
+    .actrow{gap:18px;font-size:13px;} .actrow a{padding:5px 0;}
+    .card{padding:16px 15px;}
+    .ansq{font-size:15.5px;} .ansbody p{font-size:14.5px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .modal,.loginbox{padding:22px 18px;border-radius:14px;}
+    .loginbox input{font-size:16px;padding:13px;}
+    .modal textarea,.ansform textarea,.modal input{font-size:16px;}
+    .mbtns button{padding:13px;min-height:48px;}
+    .qbtns button,.fb button,.noanswer button{min-height:42px;}
+    .ec-icon{font-size:30px;} .ec-title{font-size:18px;}
+  }
+  @media(max-width:380px){
+    .modes button{padding:7px 9px;font-size:12px;}
+    .msg .bub{max-width:92%;}
+    .logo{font-size:15px;}
+  }
 </style>
 </head>
 <body>
@@ -516,11 +557,11 @@ var lastCands = [];        // 직전 턴 후보 (후속 질문 대응)
 var aiOffNotified = false;
 
 var CATS = ['제품·기능·장비','모니터링·알람','모바일·태블릿','계약·견적·영업 프로세스','데모·실측',
-            '설치·공사','EMR·전산 연동','교육','운영·유지보수·AS','청구·삭감','준법·규제·장비신고','홍보·언론'];
+            '설치·공사','EMR·전산 연동','교육','운영·유지보수·AS','청구·삭감','준법·규제·장비신고','홍보·언론','사용법·기능설정','문제 해결','소모품'];
 var PM_CONTACT = { name: '이현주 PM (서울2 전담)', extra: '사내 메신저 · 대백과사전 요청' };
 var WARN_CATS = { '청구·삭감': 1, '준법·규제·장비신고': 1 };
 var EXAMPLES = ['중계PC에 윈도우 꼭 깔아야 하나요?','워런티가 대백과사전에 안 적혀 있으면?',
-  '데모는 며칠 걸려요?','EX871 삭감되면 병원에 뭐라고 설명하죠?','산소포화도 센서 바꿀 수 있어요?'];
+  '데모는 며칠 걸려요?','EX871 삭감되면 병원에 뭐라고 설명하죠?','산소포화도 센서 바꿀 수 있어요?','게이트웨이 불이 안 들어와요','배터리는 어디서 사요?','보고서 어떻게 출력해요?'];
 
 /* ---------- 유틸 ---------- */
 function esc(s){ return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
